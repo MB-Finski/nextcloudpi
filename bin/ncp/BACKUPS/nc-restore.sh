@@ -63,8 +63,18 @@ tar $compress_arg -xf "$BACKUPFILE" -C "$TMPDIR" || exit 1
 ## RESTORE FILES
 
 echo "restore files..."
+[[ -d "$NCDIR/data" ]] && {
+  DATA_BKP_DIR="$(mktemp -d -p "$NCDIR/.." nc-data-XXXXXX)"
+  mv -T "$NCDIR/data" "$DATA_BKP_DIR/"
+}
 rm -rf "$NCDIR"
 mv -T "$TMPDIR"/nextcloud "$NCDIR" || { echo "Error restoring base files"; exit 1; }
+if ! [[ -d "$NCDIR/data" ]] && [[ -n "$DATA_BKP_DIR" ]]
+then
+  echo "Restoring $NCDIR/data..."
+  mv -T "$DATA_BKP_DIR" "$NCDIR/data"
+else
+fi
 
 # update NC database password to this instance
 sed -i "s|'dbpassword' =>.*|'dbpassword' => '$DBPASSWD',|" /var/www/nextcloud/config/config.php
