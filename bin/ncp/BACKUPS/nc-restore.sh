@@ -69,10 +69,13 @@ echo "restore files..."
 }
 rm -rf "$NCDIR"
 mv -T "$TMPDIR"/nextcloud "$NCDIR" || { echo "Error restoring base files"; exit 1; }
-if ! [[ -d "$NCDIR/data" ]] && [[ -n "$DATA_BKP_DIR" ]]
+
+if [[ -n "$DATA_BKP_DIR" ]]
 then
   echo "Restoring $NCDIR/data..."
-  mv -T "$DATA_BKP_DIR" "$NCDIR/data"
+  target="$NCDIR/data"
+  [[ -d "$target" ]] && target="$NCDIR/.data_$(date)"
+  mv -T "$DATA_BKP_DIR" "$target"
 else
 fi
 
